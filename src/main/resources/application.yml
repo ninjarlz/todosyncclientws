@@ -1,0 +1,8 @@
+server:
+  error:
+    include-message: always
+  port: 8081
+spring-sync:
+  server-ip: localhost
+  server-url: http://${spring-sync.server-ip}:8080
+
