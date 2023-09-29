@@ -5,6 +5,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -16,11 +17,12 @@ import java.io.InputStream;
 @Profile({"firebaseSender", "firebaseReceiver"})
 public class FirebaseClientConfig {
 
-    private static final String SERVICE_ACCOUNT_FILE = "/todosync-87088-c5a0bf0ef547.json";
+    @Value("${firebase.filename}")
+    private String serviceAccountFilename;
 
     @Bean
     public Firestore firestore() throws IOException {
-        InputStream serviceAccount = FirebaseClientConfig.class.getResourceAsStream(SERVICE_ACCOUNT_FILE);
+        InputStream serviceAccount = FirebaseClientConfig.class.getResourceAsStream("/" + serviceAccountFilename);
         GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(credentials)

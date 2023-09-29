@@ -2,7 +2,9 @@ server:
   error:
     include-message: always
   port: 8081
+firebase:
+  filename: todosync-87088-b5504b80bb98.json
 spring-sync:
-  server-ip: localhost
+  server-ip: 34.116.166.117
   server-url: http://${spring-sync.server-ip}:8080
 

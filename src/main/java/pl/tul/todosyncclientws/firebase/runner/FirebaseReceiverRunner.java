@@ -20,6 +20,8 @@ import java.util.List;
 @Profile("firebaseReceiver")
 public class FirebaseReceiverRunner extends FirebaseRunner {
 
+    private static final String RECEIVED_MSG = "Received message: {}, time: {}";
+
     @Autowired
     public FirebaseReceiverRunner(Firestore firestore, FirebaseTodoGateway firebaseTodoGateway, TodoPersistenceCallback todoPersistenceCallback) {
         super(firestore, firebaseTodoGateway, todoPersistenceCallback);
@@ -32,7 +34,7 @@ public class FirebaseReceiverRunner extends FirebaseRunner {
     }
 
     private void buildEventListener(QuerySnapshot queryDocumentSnapshots, FirestoreException e) {
-        log.error("RECEIVED TIME: {}", System.currentTimeMillis());
+        log.info(RECEIVED_MSG, queryDocumentSnapshots, System.currentTimeMillis());
         List<Todo> todoList = queryDocumentSnapshots.getDocumentChanges().stream()
                 .filter(documentChange -> documentChange.getType().equals(DocumentChange.Type.ADDED))
                 .map(documentChange -> documentChange.getDocument().toObject(Todo.class))

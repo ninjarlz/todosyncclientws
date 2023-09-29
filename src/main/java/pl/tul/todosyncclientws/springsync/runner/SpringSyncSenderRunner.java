@@ -37,6 +37,6 @@ public class SpringSyncSenderRunner extends SpringSyncRunner {
         Thread.sleep(3000);
         Todo todoToAdd = Todo.builder().description("D").complete(false).build();
         AddOperation addOperation = new AddOperation("/3", todoToAdd);
-        sessionHandler.sendPatch(session, "/app/todos", new Patch(Collections.singletonList(addOperation)));
+        sessionHandler.sendPatch(session, "/app/" + RESOURCE_PATH, new Patch(Collections.singletonList(addOperation)));
     }
 }
