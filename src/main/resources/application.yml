@@ -5,6 +5,6 @@ server:
 firebase:
   filename: todosync-87088-b5504b80bb98.json
 spring-sync:
-  server-ip: 34.116.166.117
+  server-ip: localhost
   server-url: http://${spring-sync.server-ip}:8080
 

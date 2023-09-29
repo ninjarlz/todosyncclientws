@@ -1,9 +1,7 @@
 package pl.tul.todosyncclientws.firebase.runner;
 
 import com.google.api.core.ApiFuture;
-import com.google.api.core.ApiFutureCallback;
-import com.google.api.core.ApiFutures;
-import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,28 +38,15 @@ public class FirebaseSenderRunner extends FirebaseRunner {
                 .complete(false)
                 .build();
         log.error(SENDING_MSG, COLLECTION_PATH, System.currentTimeMillis());
-        ApiFuture<DocumentSnapshot> apiFuture = firestore.collection(COLLECTION_PATH)
-                .add(todo)
+        ApiFuture<DocumentReference> addFuture = firestore.collection(COLLECTION_PATH)
+                .add(todo);
+        addFuture.addListener(() -> log.error(SENT_MSG, COLLECTION_PATH, System.currentTimeMillis()), EXECUTOR);
+        todo = addFuture
                 .get()
-                .get();
-        ApiFutures.addCallback(apiFuture, new UpdateSentCallback(), EXECUTOR);
-        todo =  apiFuture
+                .get()
                 .get()
                 .toObject(Todo.class);
         todoPersistenceCallback.persistChange(todo);
         log.info(todoPersistenceCallback.findAll());
-    }
-
-    private static class UpdateSentCallback implements ApiFutureCallback<DocumentSnapshot> {
-        @Override
-        public void onFailure(Throwable throwable) {
-            log.error(throwable);
-            throw new RuntimeException(throwable);
-        }
-
-        @Override
-        public void onSuccess(DocumentSnapshot documentSnapshot) {
-            log.error(SENT_MSG, COLLECTION_PATH, System.currentTimeMillis());
-        }
     }
 }
