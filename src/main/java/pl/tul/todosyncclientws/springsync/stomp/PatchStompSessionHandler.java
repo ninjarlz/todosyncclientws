@@ -32,7 +32,6 @@ public class PatchStompSessionHandler extends StompSessionHandlerAdapter {
     private static final String ERROR_MSG = "WebSocket error occurred: {}";
     private static final String RECEIVED_MSG = "Received message: {}, time: {}";
     private static final String SENDING_MSG = "Sending message to: {}, time: {}";
-    private static final String SENT_MSG = "Sent message to: {}, time: {}";
     private static final String PATCH_APPLIED_MSG = "Patch applied";
     private static final String PATCH_NOT_APPLIED_MSG = "Patch cannot be applied: {}";
 
@@ -69,7 +68,6 @@ public class PatchStompSessionHandler extends StompSessionHandlerAdapter {
     public void sendPatch(StompSession session, String destination, Patch patch) {
         log.error(SENDING_MSG, destination, System.currentTimeMillis());
         session.send(destination, patch);
-        log.error(SENT_MSG, destination, System.currentTimeMillis());
         applyPatch(patch);
         List<Todo> todoList = todoPersistenceCallback.findAll();
         log.info(todoList);

@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public abstract class SpringSyncRunner implements CommandLineRunner {
 
-    protected static final String RESOURCE_PATH = "todos";
+    protected static final String COLLECTION_PATH = "todos";
     @Value("${spring-sync.server-ip}")
     protected String serverIP;
 
@@ -40,7 +40,7 @@ public abstract class SpringSyncRunner implements CommandLineRunner {
                 .mapToObj(index -> new AddOperation("/" + index, todoList.get(index)))
                 .map(addOperation -> (PatchOperation) addOperation)
                 .toList();
-        diffSyncService.patch(webSocketShadowStore, RESOURCE_PATH, new Patch(addOperations));
+        diffSyncService.patch(webSocketShadowStore, COLLECTION_PATH, new Patch(addOperations));
         assert todoPersistenceCallback.count() == 3;
     }
 }

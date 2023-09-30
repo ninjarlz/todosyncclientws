@@ -3,6 +3,7 @@ package pl.tul.todosyncclientws.firebase.runner;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -11,8 +12,9 @@ import pl.tul.todosyncclientws.callback.TodoPersistenceCallback;
 import pl.tul.todosyncclientws.data.Todo;
 import pl.tul.todosyncclientws.firebase.gateway.FirebaseTodoGateway;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Log4j2
@@ -20,8 +22,8 @@ import java.util.concurrent.Executors;
 public class FirebaseSenderRunner extends FirebaseRunner {
 
     private static final String SENDING_MSG = "Sending message to: {}, time: {}";
-    private static final String SENT_MSG = "Sent message to: {}, time: {}";
-    private static final Executor EXECUTOR = Executors.newCachedThreadPool();
+    private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(8);
+    private static long ADD_DELAY = 3L;
 
     @Autowired
     public FirebaseSenderRunner(Firestore firestore, FirebaseTodoGateway firebaseTodoGateway, TodoPersistenceCallback todoPersistenceCallback) {
@@ -31,18 +33,24 @@ public class FirebaseSenderRunner extends FirebaseRunner {
     @Override
     public void run(String... args) throws Exception {
         fetchInitialData();
-        Thread.sleep(3000);
-        Todo todo = Todo.builder()
-                .id(4L)
-                .description("D")
-                .complete(false)
-                .build();
+        changeRecordStatusAsync();
+    }
+
+    private void changeRecordStatusAsync() {
+        EXECUTOR.schedule(this::changeRecordStatus, ADD_DELAY, TimeUnit.SECONDS);
+    }
+
+    @SneakyThrows
+    private void changeRecordStatus() {
         log.error(SENDING_MSG, COLLECTION_PATH, System.currentTimeMillis());
-        ApiFuture<DocumentReference> addFuture = firestore.collection(COLLECTION_PATH)
-                .add(todo);
-        addFuture.addListener(() -> log.error(SENT_MSG, COLLECTION_PATH, System.currentTimeMillis()), EXECUTOR);
-        todo = addFuture
-                .get()
+        ApiFuture<Void> apiFuture = firestore.runTransaction(transaction -> {
+            DocumentReference documentReference = firestore.collection(COLLECTION_PATH).document("2");
+            transaction.update(documentReference, "complete", true);
+            return null;
+        });
+        apiFuture.get();
+        Todo todo = firestore.collection(COLLECTION_PATH)
+                .document("2")
                 .get()
                 .get()
                 .toObject(Todo.class);
