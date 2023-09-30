@@ -67,10 +67,8 @@ public class PatchStompSessionHandler extends StompSessionHandlerAdapter {
     }
 
     public void sendPatch(StompSession session, String destination, Patch patch) {
-        StompHeaders stompHeaders = new StompHeaders();
-        stompHeaders.setDestination(destination);
         log.error(SENDING_MSG, destination, System.currentTimeMillis());
-        session.send(stompHeaders, patch);
+        session.send(destination, patch);
         log.error(SENT_MSG, destination, System.currentTimeMillis());
         applyPatch(patch);
         List<Todo> todoList = todoPersistenceCallback.findAll();
