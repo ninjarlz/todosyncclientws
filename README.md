@@ -1,4 +1,4 @@
-# Todosync Ws
+# Todosync Client Ws
 
 Simple Spring Boot service simulating application client powered by [Spring Sync Ws](https://github.com/ninjarlz/spring-sync-ws) plugin. Made for testing purposes, serves as the example presenting usage of the plugin.
 
